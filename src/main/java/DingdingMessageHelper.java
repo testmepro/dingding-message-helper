@@ -10,9 +10,10 @@ import entity.HttpResponse;
 import enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -20,7 +21,7 @@ public class DingdingMessageHelper {
     private static final OkHttpClient client = new OkHttpClient();
     private static final RateLimiter RATE_LIMITER = RateLimiter.create(1D);
     private static final String defaultUrl = "https://oapi.dingtalk.com/robot/send?access_token=d7470bdd99785a2ebfb36c85c5d70c70c114b18e81b404f6711502b23a0453e4";
-    public static final Retryer<Response> retryer = RetryerBuilder
+    /*public static final Retryer<Response> retryer = RetryerBuilder
             .<Response>newBuilder()
             .withWaitStrategy(WaitStrategies.fibonacciWait(3, 30, TimeUnit.SECONDS))
             .withStopStrategy(StopStrategies.stopAfterAttempt(3))
@@ -36,7 +37,7 @@ public class DingdingMessageHelper {
                     }
                 }
             })
-            .build();
+            .build();*/
 
     public static void SendDingdingMessage(Throwable t, String url) {
         DingdingMessage msg = new DingdingMessage();
@@ -70,20 +71,28 @@ public class DingdingMessageHelper {
                 .header("Content-Type", "application/json")
                 .post(requestBody)
                 .build();
-        try {
-            retryer.call(() -> {
-                Call call = client.newCall(request);
-                Response response = call.execute();
-                Preconditions.checkArgument(response.body() != null, "response(body)响应为空");
-                HttpResponse httpResponse = JSON.parseObject(Objects.requireNonNull(response.body()).bytes(), HttpResponse.class);
-                if (httpResponse.getErrcode() != 0) {
-                    throw new RuntimeException(httpResponse.getErrmsg());
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                log.error("ERROR request: {}", call.request().toString());
+                log.error("ERROR", e);
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                try {
+                    Preconditions.checkArgument(response.body() != null, "response(body)响应为空");
+                    HttpResponse httpResponse = JSON.parseObject(Objects.requireNonNull(response.body()).bytes(), HttpResponse.class);
+                    if (httpResponse.getErrcode() != 0) {
+                        log.error("ERROR: {}", httpResponse.toString());
+                    }
+                } catch (Exception e) {
+                    log.error("ERROR", e);
                 }
-                return response;
-            });
-        } catch (ExecutionException | RetryException e) {
-            log.error("ERROR", e);
-        }
+            }
+        });
+
     }
 
     public static void main(String[] args) throws InterruptedException {
