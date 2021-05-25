@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class DingdingMessageHelper {
     private static final OkHttpClient client = new OkHttpClient();
     private static final RateLimiter RATE_LIMITER = RateLimiter.create(1D);
+    private static final String defaultUrl = "https://oapi.dingtalk.com/robot/send?access_token=d7470bdd99785a2ebfb36c85c5d70c70c114b18e81b404f6711502b23a0453e4";
     public static final Retryer<Response> retryer = RetryerBuilder
             .<Response>newBuilder()
             .withWaitStrategy(WaitStrategies.fibonacciWait(3, 30, TimeUnit.SECONDS))
@@ -43,6 +44,10 @@ public class DingdingMessageHelper {
         SendDingdingMessage(msg, url);
     }
 
+    public static void SendDingdingMessage(Throwable t) {
+        SendDingdingMessage(t, defaultUrl);
+    }
+
     public static void SendDingdingMessage(String info, String url) {
         DingdingMessage msg = new DingdingMessage();
         msg.setText(new Content(MessageType.INFO, info));
@@ -50,7 +55,7 @@ public class DingdingMessageHelper {
     }
 
     public static void SendDingdingMessage(DingdingMessage msg) {
-        String defaultUrl = "https://oapi.dingtalk.com/robot/send?access_token=d7470bdd99785a2ebfb36c85c5d70c70c114b18e81b404f6711502b23a0453e4";
+
         SendDingdingMessage(msg, defaultUrl);
     }
 
