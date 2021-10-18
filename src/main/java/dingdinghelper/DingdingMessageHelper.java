@@ -1,20 +1,21 @@
+package dingdinghelper;
+
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import com.alibaba.fastjson.JSON;
-import com.github.rholder.retry.*;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
-import entity.Content;
-import entity.DingdingMessage;
-import entity.HttpResponse;
-import enums.MessageType;
+
+import dingdinghelper.entity.Content;
+import dingdinghelper.entity.DingdingMessage;
+import dingdinghelper.entity.HttpResponse;
+import dingdinghelper.enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DingdingMessageHelper {

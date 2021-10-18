@@ -1,6 +1,7 @@
-package entity;
+package dingdinghelper.entity;
 
-import enums.MessageType;
+
+import dingdinghelper.enums.MessageType;
 import lombok.Data;
 
 @Data

@@ -1,6 +1,7 @@
-import entity.Content;
-import entity.DingdingMessage;
-import enums.MessageType;
+import dingdinghelper.DingdingMessageHelper;
+import dingdinghelper.entity.Content;
+import dingdinghelper.entity.DingdingMessage;
+import dingdinghelper.enums.MessageType;
 
 class DingdingMessageHelperTest {
 

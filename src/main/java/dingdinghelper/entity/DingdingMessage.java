@@ -1,9 +1,7 @@
-package entity;
+package dingdinghelper.entity;
 
 import com.alibaba.fastjson.JSON;
 import lombok.Data;
-
-;
 
 @Data
 public class DingdingMessage {

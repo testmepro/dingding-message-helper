@@ -1,4 +1,4 @@
-package entity;
+package dingdinghelper.entity;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package enums;
+package dingdinghelper.enums;
 
 public enum MessageType {
     EXCEPTION("异常"),
