@@ -1,20 +1,20 @@
 package dingdinghelper;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
-
 import dingdinghelper.entity.Content;
 import dingdinghelper.entity.DingdingMessage;
 import dingdinghelper.entity.HttpResponse;
 import dingdinghelper.enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.apache.commons.cli.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Objects;
 
 @Slf4j
@@ -97,11 +97,61 @@ public class DingdingMessageHelper {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        while (true) {
-            if (RATE_LIMITER.tryAcquire(20)) {
-                log.info("hit current datetime: {}", DateTime.now().toStringDefaultTimeZone());
-            }
-            Thread.sleep(1000L);
+        SendMessage(args);
+    }
+
+    private static void SendMessage(String[] args) {
+        CommandLineParser parser = new DefaultParser();
+        Options options = buildOptions();
+        Preconditions.checkArgument(args != null && args.length > 0, String.format("请输入必填参数!调用参数如下: \n%s", options.toString()));
+        try {
+            CommandLine commandLine = parser.parse(options, args);
+            Preconditions.checkArgument(commandLine.hasOption("t"), "[text]文本消息必须传入");
+            DingdingMessage message = buildDingdingMessage(commandLine);
+            SendDingdingMessage(message);
+        } catch (ParseException e) {
+            log.error("ERROR:", e);
+            log.info(options.toString());
         }
+    }
+
+    private static Options buildOptions() {
+        Options options = new CustomOptions();
+        options.addRequiredOption("t", "text", true, "发送的消息文本");
+        options.addOption("l", "level", true, "发送的消息级别(i: INFO,e: EXCEPTION)");
+        return options;
+    }
+
+    private static DingdingMessage buildDingdingMessage(CommandLine commandLine) {
+        DingdingMessage message = new DingdingMessage();
+        String text = commandLine.getOptionValue("t");
+        String levelStr = commandLine.getOptionValue("l", "i").toLowerCase();
+        MessageType messageType;
+        switch (levelStr) {
+            case "i":
+                messageType = MessageType.INFO;
+                break;
+            case "e":
+                messageType = MessageType.EXCEPTION;
+                break;
+            default:
+                messageType = MessageType.UNKNOW;
+        }
+        message.setText(new Content(messageType, text));
+        return message;
+    }
+}
+
+class CustomOptions extends Options {
+
+    @Override
+    public String toString() {
+        Collection<Option> options = getOptions();
+        StringBuffer sb = new StringBuffer();
+        sb.append("args: \n");
+        for (Option option : options) {
+            sb.append(String.format("    short: -%s  long: --%s  desc: %s isRequired: %s \n", option.getOpt(), option.getLongOpt(), option.getDescription(), option.isRequired()));
+        }
+        return sb.toString();
     }
 }

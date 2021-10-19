@@ -2,7 +2,8 @@ package dingdinghelper.enums;
 
 public enum MessageType {
     EXCEPTION("异常"),
-    INFO("消息")
+    INFO("消息"),
+    UNKNOW("未知")
     ;
     private String text;
 
