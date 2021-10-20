@@ -89,10 +89,11 @@ public class DingdingMessageHelper {
                     }
                 } catch (Exception e) {
                     log.error("ERROR", e);
+                } finally {
+                    response.close();
                 }
             }
         });
-
     }
 
     public static void main(String[] args) throws InterruptedException {
