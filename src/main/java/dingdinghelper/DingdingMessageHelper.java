@@ -57,7 +57,6 @@ public class DingdingMessageHelper {
     }
 
     public static void SendDingdingMessage(DingdingMessage msg) {
-
         SendDingdingMessage(msg, defaultUrl);
     }
 
